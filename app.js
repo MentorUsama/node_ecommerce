@@ -58,11 +58,17 @@ sequilize
                 return user
             })
             .then(user=>{
+                return user.createCart()
+            })
+            .then(cart=>{
                 app.listen(3000);
             })
             .catch((user)=>{
 
             })
+    })
+    .then((result)=>{
+        console.log(result)
     })
     .catch(error=>{
         console.log(error)
