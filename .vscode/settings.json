@@ -1,6 +1,8 @@
 {
   "files.exclude": {
     "package-lock.json": true,
-    "package.json": true
+    "package.json": true,
+    ".vscode": true,
+    ".gitignore": true
   }
 }

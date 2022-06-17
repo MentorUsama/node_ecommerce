@@ -2,7 +2,7 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongose = require('mongoose')
+const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -29,25 +29,28 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+
 app.use(errorController.get404);
 
-mongose.connect('mongodb://localhost:27017/ecommerce')
-  .then((result)=>{
-    User.findOne().then(user=>{
-      if(!user)
-      {
+mongoose
+  .connect(
+    'mongodb://localhost:27017/ecommerce'
+  )
+  .then(result => {
+    User.findOne().then(user => {
+      if (!user) {
         const user = new User({
-          name:'Usama',
-          email:'usama.farhat.99@gmail.com',
-          cart:{
-            items:[]
+          name: 'Max',
+          email: 'max@test.com',
+          cart: {
+            items: []
           }
-        })
-        user.save()
+        });
+        user.save();
       }
-      app.listen(8000)
-    })
+    });
+    app.listen(3000);
   })
-  .catch((err)=>{
-    console.log(err)
+  .catch(err => {
+    console.log(err);
   });
