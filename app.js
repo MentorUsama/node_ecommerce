@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  User.findById('62892842a65a2999db3eb137')
+  User.findById('62ce3699011fb9184c752159')
     .then(user => {
       req.user = user;
       next();
@@ -36,21 +36,22 @@ app.use(errorController.get404);
 
 mongoose
   .connect(
-    'mongodb://localhost:27017/ecommerce'
+    'mongodb://localhost:27017/ecommerce',
+    { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(result => {
-    User.findOne().then(user => {
-      if (!user) {
-        const user = new User({
-          name: 'Max',
-          email: 'max@test.com',
-          cart: {
-            items: []
-          }
-        });
-        user.save();
-      }
-    });
+    // User.findOne().then(user => {
+    //   if (!user) {
+    //     const user = new User({
+    //       name: 'Max',
+    //       email: 'max@test.com',
+    //       cart: {
+    //         items: []
+    //       }
+    //     });
+    //     user.save();
+    //   }
+    // });
     app.listen(3000);
   })
   .catch(err => {
