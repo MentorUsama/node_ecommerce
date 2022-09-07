@@ -1,14 +1,17 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const sendGridTransport = require('nodemailer-sendgrid-transport')
+const sendGridTransport = require("nodemailer-sendgrid-transport");
+const crypto = require("crypto");
 
-const transporter = nodemailer.createTransport(sendGridTransport({
-  auth: {
-    api_key: process.env.TOKEN,
-  },
-}))
-  
+const transporter = nodemailer.createTransport(
+  sendGridTransport({
+    auth: {
+      api_key: process.env.TOKEN,
+    },
+  })
+);
+
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) message = message[0];
@@ -82,14 +85,19 @@ exports.postSignup = (req, res, next) => {
         })
         .then((result) => {
           res.redirect("/login");
-          return transporter.sendMail({
-            to: email,
-            from: "muhammadusamafarhat100@gmail.com",
-            subject: "Singup Succeeded !",
-            html: "<h1>You have successfully signed up</h1>",
-          }).then(result=>{
-            console.log(result)
-          }).catch(err=>{console.log(err)});
+          return transporter
+            .sendMail({
+              to: email,
+              from: "muhammadusamafarhat100@gmail.com",
+              subject: "Singup Succeeded !",
+              html: "<h1>You have successfully signed up</h1>",
+            })
+            .then((result) => {
+              console.log(result);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         });
     })
     .catch((err) => {
@@ -104,5 +112,49 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+  });
+};
+exports.getReset = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) message = message[0];
+  else message = undefined;
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset Password",
+    errorMessage: message,
+  });
+};
+exports.postReset = (req, res, next) => {
+  const email = req.body.email;
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      return res.redirect("/reset");
+    }
+    const token = buffer.toString("hex");
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        if (!user) {
+          req.flash("error", "No Account Found With This Email");
+          return req.redirect("/reset");
+        }
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then((result) => {
+        res.redirect("/");
+        return transporter.sendMail({
+          to: email,
+          from: "muhammadusamafarhat100@gmail.com",
+          subject: "Singup Succeeded !",
+          html: `
+        <p>You requested password reset</p>
+        <p>Click this <a href='http://localhost:3000/reset/${token}'>link</a> to reset </p>
+        `,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   });
 };
