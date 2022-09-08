@@ -8,7 +8,16 @@ const router = express.Router();
 const autController = require("../controllers/auth");
 
 router.get("/login", autController.getLogin);
-router.post("/login", autController.postLogin);
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Please enter a valid email address."),
+    body("password", "Password has to be valid.")
+      .isLength({ min: 5 })
+      .isAlphanumeric(),
+  ],
+  autController.postLogin
+);
 
 router.post("/logout", autController.postLogout);
 
