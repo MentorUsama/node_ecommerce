@@ -11,10 +11,14 @@ router.get("/login", autController.getLogin);
 router.post(
   "/login",
   [
-    body("email").isEmail().withMessage("Please enter a valid email address."),
+    body("email")
+      .isEmail()
+      .withMessage("Please enter a valid email address.")
+      .normalizeEmail(),
     body("password", "Password has to be valid.")
       .isLength({ min: 5 })
-      .isAlphanumeric(),
+      .isAlphanumeric()
+      .trim(),
   ],
   autController.postLogin
 );
@@ -26,6 +30,7 @@ router.post(
   [
     check("email")
       .isEmail()
+      .normalizeEmail()
       .withMessage("Please Enter Valid Email")
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((userDoc) => {
@@ -41,13 +46,17 @@ router.post(
       "password",
       "Please Enter a oassword with only number and text and atleast 5 character"
     )
+      .trim()
       .isLength({ min: 5 })
       .isAlphanumeric(),
 
-    body("confirmPassword").custom((value, { req }) => {
-      if (value != req.body.password) throw new Error("Password Must Match!!");
-      return true;
-    }),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value != req.body.password)
+          throw new Error("Password Must Match!!");
+        return true;
+      }),
   ],
   autController.postSignup
 );
