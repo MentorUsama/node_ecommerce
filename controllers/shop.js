@@ -165,14 +165,20 @@ exports.getInvoice = (req,res,next) => {
     }
     const invoiceName = 'invoice-'+oderId+".pdf"
     const invoicePath = path.join('data','invoices',invoiceName )
-    fs.readFile(invoicePath,(err,data)=>{
-      if(err){
-        return next(err)
-      }
-      res.setHeader('Content-Type','application/pdf')
-      res.setHeader('Content-Disposition','inline;filename="'+invoiceName+'"')
-      res.send(data)
-    })
+    // fs.readFile(invoicePath,(err,data)=>{
+    //   if(err){
+    //     return next(err)
+    //   }
+    //   res.setHeader('Content-Type','application/pdf')
+    //   res.setHeader('Content-Disposition','inline;filename="'+invoiceName+'"')
+    //   res.send(data)
+    // })
+    const file = fs.createReadStream(invoicePath);
+    var stat = fs.statSync(invoicePath);
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename=agreement.pdf');
+    file.pipe(res);
   }).catch(err=>{
     const error = new Error(err);
     error.httpStatusCode = 500;
